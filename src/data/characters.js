@@ -21,7 +21,7 @@ export const BAKERY_CHAR_SIZE={1:148,2:161,3:175,4:179,5:190};
 // ── 모험 모드 무대 기본 배경 ────────────────────────────────
 // 이미지는 Capacitor public/assets 폴더에 두고 경로로 참조 (base64 임베드 X → App.jsx 경량 유지).
 // 지금은 초원 1장. 나중에 성별/진화단계별로 늘릴 땐 ADV_STAGE_BG_OF 안만 바꾸면 됨.
-export const ADV_STAGE_BG_MEADOW = "/assets/stage-adventure-meadow.png";
+export const ADV_STAGE_BG_MEADOW = "/assets/stage-adventure-meadow.webp";
 // (g=성별 'boy'|'girl', stage=진화단계 1~5) → 배경 경로. 지금은 항상 초원.
 export const ADV_STAGE_BG_OF = (g, stage) => ADV_STAGE_BG_MEADOW;
 // 프리로드 대상 목록 (아래 이미지 프리로드 useEffect에서 사용)

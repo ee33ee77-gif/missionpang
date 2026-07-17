@@ -5,6 +5,14 @@ import { TODAY, parseLocal, toStr, fmt, addDays, todayDN, getCalDays, getDN, sav
 import { buildSampleData, SAMPLE_TMPL, EMPTY_AC, EMPTY_ABS, hasClassOnDay, getScheduleForDay, getClassTime, getClassDuration, getSchedules, getShuttleText, getRemainLabel, toKoreanTime } from "./data/sampleData.js";
 import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark } from "./components/helpers.jsx";
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./components/Onboarding.jsx";
+import AvatarViewer from "./components/AvatarViewer.jsx";
+import EquipmentShop from "./components/EquipmentShop.jsx";
+import {
+  AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
+  CHAR_DISPLAY_GROWTH, CHAR_DISPLAY_AVATAR, DEFAULT_CHAR_DISPLAY_MODE,
+  getDefaultEquipped, computeAvatarPurchase, computeAvatarEquipToggle,
+  computeCharDisplayToggle, normalizeOwned, normalizeEquipped, getAvatarItem,
+} from "./data/avatarEquipment.js";
 
 import { useState, useEffect, useRef } from "react";
 /* ════════════════════════════════════════════════════════════════════════
@@ -17,7 +25,7 @@ import { useState, useEffect, useRef } from "react";
    주의: 정식 "위험구역" 초기화(resetGameData/resetAllAppData)는 사용자 기능이라
         이 플래그와 무관하게 항상 동작한다.
    ════════════════════════════════════════════════════════════════════════ */
-const DEV_MODE = true;
+const DEV_MODE = false;
 
 /* ════════════════════════════════════════════════════════════════════════
    SECTION 10. STATE LAYER (도메인별 초기값)
@@ -219,6 +227,11 @@ export default function App() {
   const [treasureData,     setTreasureData]     = useState(initProgress.treasureData);
   const [ownedDecor,       setOwnedDecor]       = useState(initProgress.ownedDecor);
   const [equippedDecor,    setEquippedDecor]    = useState(initProgress.equippedDecor);
+  // ── 꾸미기 아바타 장비 시스템 (신규, 아이별 맵. 기존 decor와 별개) ──
+  const [avatarOwned,      setAvatarOwned]      = useState({});   // { [childId]: string[] }
+  const [avatarEquipped,   setAvatarEquipped]   = useState({});   // { [childId]: {slot:itemId} }
+  const [charDisplayMode,  setCharDisplayMode]  = useState({});   // { [childId]: "growth"|"avatar" }
+  const [showEquipShop,    setShowEquipShop]    = useState(false);
   const [decorPrices,      setDecorPrices]      = useState(initProgress.decorPrices);
   const [unlockedBadgeIds, setUnlockedBadgeIds] = useState(initProgress.unlockedBadgeIds);
   const [bestStreakData,   setBestStreakData]   = useState(initProgress.bestStreakData);
@@ -382,6 +395,10 @@ export default function App() {
       const ownedDec=await load("v6_owned_decor");
       const equipDec=await load("v6_equipped_decor");
       const decPrices=await load("v6_decor_prices");
+      // ── 꾸미기 아바타 데이터 로드 (신규 키. 없으면 빈 값→기본값 폴백) ──
+      const avOwned=await load(AVATAR_OWNED_KEY);
+      const avEquip=await load(AVATAR_EQUIPPED_KEY);
+      const avMode=await load(CHAR_DISPLAY_MODE_KEY);
       const savedSkinMap=await load("v6_kid_skin_map"); // 아이별 스킨 맵 (신규)
       const savedSkin=await load("v6_kid_skin");         // 단일 스킨 (구버전, 마이그레이션용)
       const sampleSeeded=await load("v6_sample_seeded");
@@ -449,6 +466,26 @@ export default function App() {
       if(ownedDec) setOwnedDecor(ownedDec);
       if(equipDec) setEquippedDecor(equipDec);
       if(decPrices) setDecorPrices(decPrices);
+      // ── 꾸미기 아바타 주입: 아이별로 normalize(손상·구버전 방어) ──
+      {
+        const rawOwned = (avOwned && typeof avOwned==="object") ? avOwned : {};
+        const rawEquip = (avEquip && typeof avEquip==="object") ? avEquip : {};
+        const rawMode  = (avMode  && typeof avMode ==="object") ? avMode  : {};
+        const nextOwnedMap={}, nextEquipMap={}, nextModeMap={};
+        const cids=new Set([
+          ...Object.keys(rawOwned), ...Object.keys(rawEquip), ...Object.keys(rawMode),
+        ]);
+        for(const cid of cids){
+          const o=normalizeOwned(rawOwned[cid]);
+          nextOwnedMap[cid]=o;
+          nextEquipMap[cid]=normalizeEquipped(rawEquip[cid], o);
+          nextModeMap[cid]=(rawMode[cid]===CHAR_DISPLAY_AVATAR||rawMode[cid]===CHAR_DISPLAY_GROWTH)
+            ? rawMode[cid] : DEFAULT_CHAR_DISPLAY_MODE;
+        }
+        setAvatarOwned(nextOwnedMap);
+        setAvatarEquipped(nextEquipMap);
+        setCharDisplayMode(nextModeMap);
+      }
       const tipSeen=await load("v6_first_mission_tip_seen");
       if(tipSeen) setFirstTipSeen(true);
       const pinHint=await load("v6_pin_hint_seen");
@@ -536,6 +573,10 @@ export default function App() {
     if(!pinHintSeen){ setPinHintSeen(true); save("v6_pin_hint_seen","1"); }
   };
   useEffect(()=>{ if(loaded) save("v6_score",scoreData); },[scoreData,loaded]);
+  // ── 꾸미기 아바타 자동저장 (신규 키) ──
+  useEffect(()=>{ if(loaded) save(AVATAR_OWNED_KEY,avatarOwned); },[avatarOwned,loaded]);
+  useEffect(()=>{ if(loaded) save(AVATAR_EQUIPPED_KEY,avatarEquipped); },[avatarEquipped,loaded]);
+  useEffect(()=>{ if(loaded) save(CHAR_DISPLAY_MODE_KEY,charDisplayMode); },[charDisplayMode,loaded]);
   useEffect(()=>{ if(loaded) save("v6_reward",rewardData); },[rewardData,loaded]);
   useEffect(()=>{ if(loaded) save("v6_reward_requests",rewardRequests); },[rewardRequests,loaded]);
   useEffect(()=>{ if(loaded) save("v6_unlocked_badges",unlockedBadgeIds); },[unlockedBadgeIds,loaded]);
@@ -1000,6 +1041,9 @@ export default function App() {
     // 연속기록·마지막 레벨 기록도 초기화
     setBestStreakData(prev=>({...prev,[cid]:0}));
     setLastLevelByChild(prev=>({...prev,[cid]:undefined}));
+    setAvatarOwned(prev=>({...prev,[cid]:normalizeOwned([])}));
+    setAvatarEquipped(prev=>({...prev,[cid]:getDefaultEquipped()}));
+    setCharDisplayMode(prev=>({...prev,[cid]:DEFAULT_CHAR_DISPLAY_MODE}));
     showToast("게임 데이터 초기화 완료");
     }, `🧹 ${nm} 데이터 초기화`);
   };
@@ -1014,6 +1058,7 @@ export default function App() {
     setPetData({});
     setSkinByChild({});
     setOwnedDecor({}); setEquippedDecor({}); setDecorPrices({});
+    setAvatarOwned({}); setAvatarEquipped({}); setCharDisplayMode({}); setShowEquipShop(false);
     setUnlockedBadgeIds([]); setLastLevelByChild({});
     setSelectedTitles({}); setTreasureData({}); setSeenTitles({});
     setEarnedTitleIds({});
@@ -1998,6 +2043,53 @@ export default function App() {
       return {...prev,[cid]:{...cur,[groupKey]:next}};
     });
   };
+  /* ── 꾸미기 아바타: 아이별 조회 헬퍼 ──
+     저장 안 된 아이는 기본값(스타터 장착)으로 폴백해 항상 유효한 값을 돌려준다. */
+  const getAvatarOwned    = (cid)=> avatarOwned[cid]    || normalizeOwned([]);
+  const getAvatarEquipped = (cid)=> avatarEquipped[cid] || getDefaultEquipped();
+  const getCharMode       = (cid)=> charDisplayMode[cid] || DEFAULT_CHAR_DISPLAY_MODE;
+
+  /* 아바타 베이스 몸체로 쓸 3단계 성장 캐릭터 이미지 경로.
+     현재 모드(모험/베이커리)·성별을 자동 반영한다. (아바타는 항상 stage 3 사용) */
+  const getAvatarBaseCharImg = (cid)=>{
+    const g=(children.find(c=>c.id===cid)?.gender)==="girl"?"girl":"boy";
+    const set=(kidSkin==="cute"?BAKERY_CHAR_IMG:ADV_CHAR_IMG)[g];
+    return set?.[3] || null; // stage-3 고정
+  };
+
+  /* 아바타 파츠 구매 (코인 차감은 기존 spendCoin 패턴 그대로) */
+  const buyAvatarItem=(itemId)=>{
+    const cid=childId;
+    const item=getAvatarItem(itemId);
+    if(!item) return;
+    const owned=getAvatarOwned(cid), equipped=getAvatarEquipped(cid);
+    const res=computeAvatarPurchase(owned, equipped, getChildCoin(cid), itemId);
+    if(!res.ok){
+      if(res.reason==="already_owned") showToast("이미 가지고 있어요 ✨");
+      else if(res.reason==="insufficient") showToast(`${TM.coin}이 부족해요 ${TM.coinEmoji}`);
+      return;
+    }
+    spendCoin(cid,res.cost,`${item.label} 꾸미기 파츠 구매`);
+    setAvatarOwned(prev=>({...prev,[cid]:res.nextOwned}));
+    setAvatarEquipped(prev=>({...prev,[cid]:res.nextEquipped}));
+    showToast(`${item.label} 획득! 🎉`);
+  };
+
+  /* 아바타 파츠 장착/벗기 토글 */
+  const toggleAvatarItem=(itemId)=>{
+    const cid=childId;
+    const owned=getAvatarOwned(cid), equipped=getAvatarEquipped(cid);
+    const res=computeAvatarEquipToggle(owned, equipped, itemId);
+    if(!res.ok) return;
+    setAvatarEquipped(prev=>({...prev,[cid]:res.nextEquipped}));
+  };
+
+  /* 홈 캐릭터 표시 모드 토글 (성장 ↔ 아바타) */
+  const toggleCharDisplayMode=()=>{
+    const cid=childId;
+    setCharDisplayMode(prev=>({...prev,[cid]:computeCharDisplayToggle(getCharMode(cid))}));
+  };
+
   // 현재 장착 데코 객체 조회 (스킨 반영). 없으면 null
   // ── 테마 테두리 색 생성 ──
   //  아이가 고른 테마색(th.main)을 기준으로 보석 느낌의 광택 그라데이션을 만든다.
@@ -3145,6 +3237,18 @@ export default function App() {
           );
         })()}
 
+        {/* ── 아바타 꾸미기 상점 모달 (신규) ── */}
+        <EquipmentShop
+          open={showEquipShop}
+          onClose={()=>setShowEquipShop(false)}
+          coins={getChildCoin(childId)}
+          owned={getAvatarOwned(childId)}
+          equipped={getAvatarEquipped(childId)}
+          baseCharImg={getAvatarBaseCharImg(childId)}
+          onBuy={buyAvatarItem}
+          onToggle={toggleAvatarItem}
+        />
+
         {/* 아이용 헤더 - RPG 상태창 */}
         <div style={{position:"relative",zIndex:1,background:kidSkin==="cute"
             ?`radial-gradient(130% 100% at 85% -20%, ${mixWhite(th.main,0.30)}, transparent 60%), ${GP.headerBg}`
@@ -3393,6 +3497,10 @@ export default function App() {
                         const _SZ=cute?BAKERY_CHAR_SIZE:ADV_CHAR_SIZE;
                         const _sz=_SZ[_st];
                         const _IMG=cute?BAKERY_CHAR_IMG:ADV_CHAR_IMG;
+                        // 표시 모드가 '아바타'면 꾸미기 아바타를 보여준다 (성장 캐릭터와 토글).
+                        if(getCharMode(childId)===CHAR_DISPLAY_AVATAR){
+                          return <AvatarViewer equipped={getAvatarEquipped(childId)} size={Math.round(_sz*0.92)} baseCharImg={getAvatarBaseCharImg(childId)} />;
+                        }
                         return (
                           // 타이트 재단 이미지: 높이=_sz, 폭은 그림 비율대로 → 캐릭터 몸에 딱 맞는 박스 (펫·주변 요소가 몸 기준으로 붙음)
                           <img src={_IMG[_g][_st]} alt="캐릭터" draggable={false}
@@ -3446,6 +3554,15 @@ export default function App() {
                   <div style={{position:"relative",zIndex:2,marginTop:cute?12:18,display:"flex",alignItems:"center",justifyContent:"center",gap:8,flexWrap:"wrap"}}>
                     <InfoChip ring={lvCol} emoji={level.emoji} text={`Lv.${level.level}`}/>
                     <InfoChip ring={tr.color} emoji={title.emoji} text={title.name}/>
+                    {/* 성장 캐릭터 ↔ 꾸미기 아바타 표시 전환 */}
+                    <button onClick={toggleCharDisplayMode}
+                      style={{display:"flex",alignItems:"center",gap:4,cursor:"pointer",
+                        background:cute?`linear-gradient(135deg, ${th.main}22, ${th.main}10)`:GP.chipBg,
+                        border:`1.5px solid ${cute?th.main+"77":"rgba(255,255,255,0.55)"}`,borderRadius:999,padding:"4px 11px",
+                        color:(!cute)?"#fff":mixBlack(th.main,0.25),fontSize:10,fontWeight:900,whiteSpace:"nowrap",
+                        boxShadow:cute?`0 3px 9px ${th.main}33`:"0 2px 6px rgba(0,0,0,0.3)"}}>
+                      {getCharMode(childId)===CHAR_DISPLAY_AVATAR?"🌱 성장 보기":"👗 아바타 보기"}
+                    </button>
                   </div>
                 );
               })()}
@@ -3913,6 +4030,19 @@ export default function App() {
                   <span style={{textAlign:"left"}}>
                     <span style={{display:"block",fontSize:18,fontWeight:900,color:kidSkin==="cute"?C.text:"#FFFFFF"}}>{kidSkin==="cute"?"꾸미기 가게":"꾸미기 상점"}</span>
                     <span style={{display:"block",fontSize:12,fontWeight:800,opacity:kidSkin==="cute"?0.72:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.66)",marginTop:4}}>모자·테두리·배경으로 프로필 꾸미기 · {getOwnedCount(childId)}개 보유</span>
+                  </span>
+                </span>
+                <span style={{fontSize:18,opacity:kidSkin==="cute"?0.6:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)"}}>›</span>
+              </button>
+
+              {/* ── 아바타 꾸미기 상점 진입 (신규) ── */}
+              <button onClick={()=>setShowEquipShop(true)}
+                style={{...characterCardT,width:"100%",boxSizing:"border-box",padding:"18px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",textAlign:"left"}}>
+                <span style={{display:"flex",alignItems:"center",gap:7}}>
+                  <span style={{fontSize:18}}>👗</span>
+                  <span style={{textAlign:"left"}}>
+                    <span style={{display:"block",fontSize:18,fontWeight:900,color:kidSkin==="cute"?C.text:"#FFFFFF"}}>아바타 꾸미기</span>
+                    <span style={{display:"block",fontSize:12,fontWeight:800,opacity:kidSkin==="cute"?0.72:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.66)",marginTop:4}}>파츠를 사서 나만의 아바타를 만들어요 · {getAvatarOwned(childId).length}개 보유</span>
                   </span>
                 </span>
                 <span style={{fontSize:18,opacity:kidSkin==="cute"?0.6:1,color:kidSkin==="cute"?C.sub:"rgba(255,255,255,0.7)"}}>›</span>
