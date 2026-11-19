@@ -1,0 +1,630 @@
+/* MissionPang Premium Gem Adventure UI — 2.5D Cozy Fantasy */
+
+.mpg-forest-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("/assets/backgrounds/bg-gem-forest.webp");
+  background-size: cover;
+  background-position: center 22%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mpg-forest-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(16, 24, 46, 0.32) 0%,
+    rgba(16, 24, 46, 0.14) 38%,
+    rgba(16, 24, 46, 0.70) 78%,
+    rgba(14, 20, 38, 0.90) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 시안 C 메인 무대 하단 보석 수집 바 ── */
+.mpg-hero-strip {
+  position: relative;
+  z-index: 2;
+  margin-top: 14px;
+  padding: 11px 12px;
+  border-radius: 18px;
+  background: linear-gradient(155deg, rgba(16, 24, 48, 0.80) 0%, rgba(12, 18, 38, 0.90) 100%);
+  border: 1px solid rgba(255, 224, 150, 0.28);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(10px);
+  color: #FAF6EC;
+}
+
+.mpg-hero-strip.cute {
+  background: rgba(255, 255, 255, 0.84);
+  border: 1.5px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 20px rgba(130, 90, 110, 0.14);
+  color: #2C2A3E;
+}
+
+.mpg-hero-strip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.mpg-hero-target {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.mpg-hero-target img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.mpg-hero-target-title {
+  font-size: 12px;
+  font-weight: 900;
+  color: #FFE596;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mpg-hero-strip.cute .mpg-hero-target-title {
+  color: #8B5CF6;
+}
+
+.mpg-hero-target-sub {
+  font-size: 11px;
+  font-weight: 700;
+  color: #C9D2E8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mpg-hero-strip.cute .mpg-hero-target-sub {
+  color: #6B657E;
+}
+
+.mpg-vault-btn {
+  border: 1px solid rgba(255, 229, 150, 0.42);
+  background: rgba(245, 196, 81, 0.16);
+  color: #FFE596;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 11.5px;
+  font-weight: 900;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  transition: transform 0.16s ease, box-shadow 0.2s ease;
+}
+
+.mpg-hero-strip.cute .mpg-vault-btn {
+  background: linear-gradient(135deg, #FFF3D1, #FFE596);
+  border-color: #F5C451;
+  color: #5A3B04;
+}
+
+.mpg-vault-btn:active {
+  transform: scale(0.95);
+}
+
+.mpg-vault-btn.pulse {
+  transform: scale(1.1);
+  box-shadow: 0 0 18px rgba(245, 196, 81, 0.72);
+}
+
+.mpg-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.mpg-mini-slot {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  background: rgba(12, 18, 36, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.14s ease, border-color 0.2s ease;
+}
+
+.mpg-hero-strip.cute .mpg-mini-slot {
+  background: rgba(245, 240, 255, 0.85);
+  border-color: rgba(167, 139, 250, 0.25);
+}
+
+.mpg-mini-slot:active {
+  transform: scale(0.94);
+}
+
+.mpg-mini-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mpg-mini-slot.locked img {
+  filter: brightness(0.18) saturate(0.2);
+  opacity: 0.62;
+}
+
+.mpg-mini-count {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 999px;
+  background: rgba(14, 20, 38, 0.88);
+  color: #FFE596;
+  line-height: 1.1;
+}
+
+/* ── 시안 B 보석 성소 도감 화면 ── */
+.mpg-vault-wrap {
+  position: relative;
+  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 224, 150, 0.28);
+  box-shadow: 0 14px 36px rgba(8, 12, 28, 0.42);
+  color: #FAF6EC;
+  background: #141932;
+}
+
+.mpg-vault-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("/assets/backgrounds/bg-gem-vault.webp");
+  background-size: cover;
+  background-position: center top;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mpg-vault-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 14, 42, 0.46) 0%,
+    rgba(16, 18, 40, 0.72) 45%,
+    rgba(12, 16, 34, 0.94) 100%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mpg-vault-inner {
+  position: relative;
+  z-index: 1;
+  padding: 16px 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.mpg-vault-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mpg-vault-head h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: #FFE596;
+  letter-spacing: -0.02em;
+}
+
+.mpg-vault-head p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #C9D2E8;
+}
+
+.mpg-motion-toggle {
+  border: 1px solid rgba(255, 224, 150, 0.30);
+  background: rgba(18, 24, 48, 0.76);
+  color: #C9D2E8;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 32px;
+}
+
+.mpg-motion-toggle.on {
+  background: rgba(245, 196, 81, 0.22);
+  border-color: #F5C451;
+  color: #FFE596;
+}
+
+.mpg-progress-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(10, 14, 30, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+
+.mpg-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3CD096 0%, #F5C451 100%);
+  transition: width 0.35s ease;
+}
+
+.mpg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.mpg-slot {
+  position: relative;
+  background: rgba(14, 21, 42, 0.76);
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  padding: 12px 6px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  color: inherit;
+  min-height: 114px;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.mpg-slot:active {
+  transform: scale(0.96);
+}
+
+.mpg-slot.selected {
+  box-shadow: 0 0 20px rgba(245, 196, 81, 0.38);
+  background: rgba(26, 36, 68, 0.88);
+}
+
+.mpg-slot img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+}
+
+.mpg-slot.locked img {
+  filter: brightness(0.18) saturate(0.2);
+  opacity: 0.68;
+}
+
+.mpg-slot-name {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #FAF6EC;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.mpg-slot.locked .mpg-slot-name {
+  color: #8E9BBF;
+}
+
+.mpg-rar-pill {
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.34);
+}
+
+.mpg-slot-qty {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(245, 196, 81, 0.22);
+  border: 1px solid rgba(255, 229, 150, 0.40);
+  color: #FFE596;
+}
+
+.mpg-detail-card {
+  background: rgba(16, 24, 48, 0.86);
+  border: 1px solid rgba(255, 224, 150, 0.26);
+  border-radius: 18px;
+  padding: 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mpg-detail-img-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  background: radial-gradient(circle, rgba(255, 229, 150, 0.22) 0%, rgba(12, 18, 36, 0.72) 72%);
+  border: 1px solid rgba(255, 224, 150, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mpg-detail-img-wrap img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+}
+
+.mpg-detail-img-wrap.locked img {
+  filter: brightness(0.18) saturate(0.2);
+  opacity: 0.7;
+}
+
+.mpg-detail-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.mpg-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.mpg-detail-title strong {
+  font-size: 15px;
+  font-weight: 900;
+  color: #FFE596;
+}
+
+.mpg-detail-meta {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9FB0D6;
+  margin-bottom: 5px;
+}
+
+.mpg-detail-story {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.48;
+  color: #E3EAF9;
+}
+
+.mpg-history-box {
+  background: rgba(14, 20, 40, 0.70);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 16px;
+  padding: 11px 12px;
+}
+
+.mpg-history-box h3 {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  font-weight: 900;
+  color: #FFE596;
+}
+
+.mpg-history-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+}
+
+.mpg-history-row:first-of-type {
+  border-top: none;
+}
+
+.mpg-history-row img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* ── 7단계 보석 획득 풀스크린 모달 ── */
+.mpg-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(circle at 50% 40%, rgba(48, 36, 98, 0.94) 0%, rgba(10, 14, 30, 0.97) 75%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  text-align: center;
+  color: #FAF6EC;
+  animation: mpg-fade-in 0.24s ease;
+}
+
+.mpg-modal-halo {
+  position: relative;
+  width: 204px;
+  height: 204px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.mpg-modal-rays {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 229, 150, 0.48) 0%, rgba(167, 139, 250, 0.20) 46%, transparent 72%);
+  animation: mpg-pulse-rays 2.2s ease-in-out infinite;
+}
+
+.mpg-modal-gem {
+  width: 152px;
+  height: 152px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 28px rgba(255, 229, 150, 0.60));
+  animation: mpg-gem-pop 0.52s cubic-bezier(0.22, 1.32, 0.36, 1) forwards;
+}
+
+.mpg-modal-gem.flying {
+  animation: mpg-gem-fly 0.50s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.mpg-sparkle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #FFF6CF;
+  box-shadow: 0 0 10px #FFE596;
+  animation: mpg-sparkle-burst 0.95s ease-out forwards;
+}
+
+.mpg-modal-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.mpg-modal-new {
+  font-size: 11px;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #3CD096, #1FA371);
+  color: #092419;
+}
+
+.mpg-modal-title {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 900;
+  color: #FFE596;
+  letter-spacing: -0.02em;
+}
+
+.mpg-modal-quest {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #A8B8DC;
+}
+
+.mpg-modal-story {
+  margin: 0 0 18px;
+  font-size: 13.5px;
+  line-height: 1.52;
+  color: #E3EAF9;
+  max-width: 290px;
+}
+
+.mpg-modal-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.mpg-modal-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.11);
+  border: 1px solid rgba(255, 229, 150, 0.30);
+  font-size: 12.5px;
+  font-weight: 900;
+  color: #FAF6EC;
+}
+
+.mpg-modal-cta {
+  min-width: 216px;
+  min-height: 50px;
+  padding: 0 22px;
+  border-radius: 16px;
+  border: 1.5px solid #FFF2C2;
+  background: linear-gradient(180deg, #FFE596 0%, #F5C451 55%, #D69D2B 100%);
+  color: #2C1B04;
+  font-size: 15.5px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(245, 196, 81, 0.38);
+}
+
+.mpg-modal-cta:active {
+  transform: scale(0.96);
+}
+
+.mpg-modal-cta:disabled {
+  opacity: 0.72;
+  cursor: default;
+}
+
+@keyframes mpg-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes mpg-pulse-rays {
+  0%, 100% { transform: scale(0.95); opacity: 0.76; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+@keyframes mpg-gem-pop {
+  0% { transform: scale(0.35) rotate(-12deg); opacity: 0; }
+  65% { transform: scale(1.12) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes mpg-gem-fly {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(115px, -240px) scale(0.18); opacity: 0.18; }
+}
+@keyframes mpg-sparkle-burst {
+  0% { transform: translate(0, 0) scale(0.3); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(1.1); opacity: 0; }
+}
+
+.mpg-reduced *, .mpg-reduced *::before, .mpg-reduced *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpg-modal-backdrop *, .mpg-vault-wrap *, .mpg-hero-strip * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -7,6 +7,16 @@ import { CharacterSectionHeader, GameModalHeader, GameModalButton, KidCoachmark 
 import { ModeSelect, CoachmarkOverlay, OnboardingFlow, GuideModal } from "./components/Onboarding.jsx";
 import AvatarViewer from "./components/AvatarViewer.jsx";
 import EquipmentShop from "./components/EquipmentShop.jsx";
+import GemHeroStrip from "./components/gem/GemHeroStrip.jsx";
+import GemCollectionView from "./components/gem/GemCollectionView.jsx";
+import GemAcquireModal from "./components/gem/GemAcquireModal.jsx";
+import "./components/gem/gemUi.css";
+import {
+  GEM_COLLECTION_KEY,
+  GEM_REDUCED_MOTION_KEY,
+  getChildGemState,
+  awardGemForQuest,
+} from "./data/gemCollection.js";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
   CHAR_DISPLAY_GROWTH, CHAR_DISPLAY_AVATAR, DEFAULT_CHAR_DISPLAY_MODE,
@@ -303,6 +313,13 @@ export default function App() {
   const [openStreak,             setOpenStreak]             = useState(initUi.openStreak);
   const [pastQuestBlockModal,    setPastQuestBlockModal]    = useState(initUi.pastQuestBlockModal);
   const [questResultModal,       setQuestResultModal]       = useState(initUi.questResultModal);
+  // ── 보석 수집 도감 & 7단계 획득 연출 (v6_gem_collection 호환 확장) ──
+  const [gemCollection,          setGemCollection]          = useState({});
+  const [gemReducedMotion,       setGemReducedMotion]       = useState(false);
+  const [selectedGemVaultId,     setSelectedGemVaultId]     = useState(null);
+  const [pendingGemReveal,       setPendingGemReveal]       = useState(null);
+  const [gemVaultPulse,          setGemVaultPulse]          = useState(false);
+  const gemAwardLockRef = useRef(new Set());
   const [charCheer,              setCharCheer]              = useState(initUi.charCheer);
   const [treasureModal,          setTreasureModal]          = useState(initUi.treasureModal);
   const [openingTreasure,        setOpeningTreasure]        = useState(initUi.openingTreasure);
@@ -459,6 +476,10 @@ export default function App() {
       if(lastLv) setLastLevelByChild(lastLv);
       if(selectedTitle) setSelectedTitles(selectedTitle);
       if(treasure) setTreasureData(treasure);
+      const savedGems = await load(GEM_COLLECTION_KEY);
+      if(savedGems && typeof savedGems === "object") setGemCollection(savedGems);
+      const savedGemMotion = await load(GEM_REDUCED_MOTION_KEY);
+      if(typeof savedGemMotion === "boolean") setGemReducedMotion(savedGemMotion);
       if(seenTitlesData) setSeenTitles(seenTitlesData);
       if(earnedTitlesData) setEarnedTitleIds(earnedTitlesData);
       if(specialTitleData) setSpecialTitles(specialTitleData);
@@ -583,6 +604,8 @@ export default function App() {
   useEffect(()=>{ if(loaded) save("v6_last_level",lastLevelByChild); },[lastLevelByChild,loaded]);
   useEffect(()=>{ if(loaded) save("v6_selected_titles",selectedTitles); },[selectedTitles,loaded]);
   useEffect(()=>{ if(loaded) save("v6_treasure",treasureData); },[treasureData,loaded]);
+  useEffect(()=>{ if(loaded) save(GEM_COLLECTION_KEY,gemCollection); },[gemCollection,loaded]);
+  useEffect(()=>{ if(loaded) save(GEM_REDUCED_MOTION_KEY,gemReducedMotion); },[gemReducedMotion,loaded]);
   useEffect(()=>{ if(loaded) save("v6_seen_titles",seenTitles); },[seenTitles,loaded]);
   useEffect(()=>{ if(loaded) save("v6_earned_titles",earnedTitleIds); },[earnedTitleIds,loaded]);
   useEffect(()=>{ if(loaded) save("v6_special_titles",specialTitles); },[specialTitles,loaded]);
@@ -1044,6 +1067,8 @@ export default function App() {
     setAvatarOwned(prev=>({...prev,[cid]:normalizeOwned([])}));
     setAvatarEquipped(prev=>({...prev,[cid]:getDefaultEquipped()}));
     setCharDisplayMode(prev=>({...prev,[cid]:DEFAULT_CHAR_DISPLAY_MODE}));
+    setGemCollection(prev=>({...prev,[cid]:{ownedIds:[],counts:{},rewardedQuestKeys:[],history:[]}}));
+    gemAwardLockRef.current=new Set([...gemAwardLockRef.current].filter(k=>!k.startsWith(`${cid}::`)));
     showToast("게임 데이터 초기화 완료");
     }, `🧹 ${nm} 데이터 초기화`);
   };
@@ -1059,6 +1084,7 @@ export default function App() {
     setSkinByChild({});
     setOwnedDecor({}); setEquippedDecor({}); setDecorPrices({});
     setAvatarOwned({}); setAvatarEquipped({}); setCharDisplayMode({}); setShowEquipShop(false);
+    setGemCollection({}); setPendingGemReveal(null); gemAwardLockRef.current=new Set();
     setUnlockedBadgeIds([]); setLastLevelByChild({});
     setSelectedTitles({}); setTreasureData({}); setSeenTitles({});
     setEarnedTitleIds({});
@@ -2625,6 +2651,26 @@ export default function App() {
     setDailyEntry(cid,academyId,date,{...entry,checkedSupplies:next});
   };
 
+  const awardGemForQuestOnce=(cid,questKey,meta={})=>{
+    const lockKey=`${cid}::${questKey}`;
+    if(gemAwardLockRef.current.has(lockKey)) return false;
+    const res=awardGemForQuest(gemCollection,cid,questKey,meta);
+    if(!res.awarded) return false;
+    gemAwardLockRef.current.add(lockKey);
+    setGemCollection(res.nextMap);
+    if(appMode==="child"){
+      setPendingGemReveal({
+        questKey,
+        gem:res.gem,
+        isNew:res.isNew,
+        title:meta.title||"미션 완료",
+        point:meta.point||0,
+      });
+      return true;
+    }
+    return false;
+  };
+
   const toggleHomeworkDone=(cid,academyId,date,homeworkId)=>{
     const entry=getDailyEntry(cid,academyId,date);
     const homeworks=entry.homeworks||[];
@@ -2638,11 +2684,12 @@ export default function App() {
     addReward(cid,nextDone?point:-point,"homework");
     if(nextDone){
       if(isFirstEver) setFirstTipPending(true);
-      giveTreasureForQuestOnce(
-        cid,
-        getQuestTreasureKey("homework",academyId,date,homeworkId)
-      );
-      showQuestResult({type:"clear",xp:point,title:target.text});
+      const qKey=getQuestTreasureKey("homework",academyId,date,homeworkId);
+      giveTreasureForQuestOnce(cid,qKey);
+      const qProg=getTodayQuestProgress(cid,date);
+      const allDoneToday=qProg.total>0&&(qProg.done+1)>=qProg.total;
+      const showedGem=awardGemForQuestOnce(cid,qKey,{kind:"homework",title:target.text,point,allDoneToday});
+      if(!showedGem) showQuestResult({type:"clear",xp:point,title:target.text});
       if(appMode==="child") cheerCharacter(point);
     } else {
       showToast(`체크 취소 -${point} ${TM.xp} / -${point} ${TM.coin}`);
@@ -2662,11 +2709,12 @@ export default function App() {
     addReward(cid,nextDone?point:-point,"todo");
     if(nextDone){
       if(isFirstEver) setFirstTipPending(true);
-      giveTreasureForQuestOnce(
-        cid,
-        getQuestTreasureKey("todo",academyId,date,todoId)
-      );
-      showQuestResult({type:"clear",xp:point,title:target.text});
+      const qKey=getQuestTreasureKey("todo",academyId,date,todoId);
+      giveTreasureForQuestOnce(cid,qKey);
+      const qProg=getTodayQuestProgress(cid,date);
+      const allDoneToday=qProg.total>0&&(qProg.done+1)>=qProg.total;
+      const showedGem=awardGemForQuestOnce(cid,qKey,{kind:"todo",title:target.text,point,allDoneToday});
+      if(!showedGem) showQuestResult({type:"clear",xp:point,title:target.text});
       if(appMode==="child") cheerCharacter(point);
     } else {
       showToast(`체크 취소 -${point} ${TM.xp} / -${point} ${TM.coin}`);
@@ -3345,8 +3393,13 @@ export default function App() {
               background:stageBg,
               border:stageBorder?"none":(cute?"2px solid #fff":`1px solid ${th.main}66`),
               boxShadow:cute?`0 16px 36px ${th.main}3a, inset 0 2px 8px rgba(255,255,255,0.85)`:`0 14px 34px ${GP.boxShadowCol||"rgba(0,0,0,0.35)"}, inset 0 1px 0 rgba(255,255,255,0.10)`}}>
-              {/* 모험 기본 풍경 (밤·숲속 캠프) — 배경 꾸미기 미장착 시 기본 배경으로 */}
-              {!cute&&!stageBgDeco&&<DungeonScenery/>}
+              {/* 모험 기본 풍경 (2.5D 마법의 보석 숲) — 배경 꾸미기 미장착 시 기본 배경으로 */}
+              {!cute&&!stageBgDeco&&(
+                <>
+                  <div className="mpg-forest-bg" />
+                  <div className="mpg-forest-scrim" />
+                </>
+              )}
               {/* 베이커리 기본 풍경 (하늘+해+구름+제과점) — 그대로 유지 */}
               {cute&&!stageBgDeco&&<BakeryScenery/>}
               {/* 캐릭터 스포트라이트 — 모험/베이커리 공통이라 일단 유지 */}
@@ -3566,6 +3619,16 @@ export default function App() {
                   </div>
                 );
               })()}
+              {/* ── 시안 C 보석 수집 바 (다음 목표 보석 + 6종 미니 도감 띠) ── */}
+              <GemHeroStrip
+                gemState={getChildGemState(gemCollection,childId)}
+                cute={cute}
+                vaultPulse={gemVaultPulse}
+                onOpenVault={(gid)=>{
+                  if(gid) setSelectedGemVaultId(gid);
+                  setChildTab("gems");
+                }}
+              />
             </div>
             </div>
           );
@@ -3574,7 +3637,7 @@ export default function App() {
         {/* 아이용 탭 */}
         <div style={{position:"relative",zIndex:1,display:"flex",background:GP.boxSolid,margin:"16px 16px 0",borderRadius:18,padding:6,border:`1px solid ${GP.boxBorder}`,boxShadow:SHADOW.md,gap:6}}>
           {(()=>{ const charLabel = kidSkin==="cute" ? T.tabs.character : `${getGenderEmoji(curChild)} 내 캐릭터`;
-          return [["area",T.tabs.area],["today",T.tabs.quest],["growth",charLabel]].map(([k,label])=>{
+          return [["area",T.tabs.area],["today",T.tabs.quest],["gems","💎 도감"],["growth",charLabel]].map(([k,label])=>{
             const on=childTab===k;
             // RPG 스킨: 선택 탭 = 테마별 판타지 3단 그라데이션 (진→중→밝).
             // 파랑=모험가 / 보라=마법사 / 연두=엘프 / 살구=힐러 / 분홍=요정.
@@ -3919,6 +3982,18 @@ export default function App() {
               )}
 
             </>
+          )}
+
+          {/* ── 보석 도감 탭 (시안 B 보석 성소) ── */}
+          {childTab==="gems"&&(
+            <GemCollectionView
+              childName={curChild?.name||"탐험가"}
+              gemState={getChildGemState(gemCollection,childId)}
+              initialSelectedGemId={selectedGemVaultId}
+              reducedMotion={gemReducedMotion}
+              onToggleReducedMotion={()=>setGemReducedMotion(v=>!v)}
+              onGoToMissions={()=>setChildTab("today")}
+            />
           )}
 
           {/* ── 성장 탭 ── */}
@@ -7527,6 +7602,19 @@ export default function App() {
           </div>
         </div>
       )}
+      {/* ── 보석 획득 7단계 연출 모달 ── */}
+      <GemAcquireModal
+        reveal={pendingGemReveal}
+        reducedMotion={gemReducedMotion}
+        xpLabel={TM.xp}
+        coinLabel={TM.coin}
+        onCollected={(rev)=>{
+          if(rev?.gem?.id) setSelectedGemVaultId(rev.gem.id);
+          setPendingGemReveal(null);
+          setGemVaultPulse(true);
+          window.setTimeout(()=>setGemVaultPulse(false),560);
+        }}
+      />
     </div>
   );
 }
