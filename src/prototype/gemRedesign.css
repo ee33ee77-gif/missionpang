@@ -1,0 +1,800 @@
+/* MISSIONPANG — PREMIUM GAME VISUAL REDESIGN v1.0 Prototype Styles */
+:root {
+  --mp-abyss: #121a30;
+  --mp-twilight: #1a2746;
+  --mp-panel: rgba(24, 36, 66, 0.84);
+  --mp-card: rgba(34, 51, 88, 0.82);
+  --mp-text: #fffdf7;
+  --mp-sub: #cfd8ee;
+  --mp-muted: #95a4c8;
+  --mp-gold-l: #ffe89e;
+  --mp-gold: #f5c451;
+  --mp-gold-d: #b97a10;
+  --mp-mint: #4ce0a8;
+  --mp-border: rgba(218, 232, 255, 0.18);
+  --mp-font: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+}
+
+.mp-lab {
+  min-height: 100vh;
+  background: radial-gradient(circle at 20% 0%, #243866 0%, #10172a 65%);
+  color: var(--mp-text);
+  font-family: var(--mp-font);
+  padding: 20px 14px 48px;
+  box-sizing: border-box;
+}
+
+.mp-lab * {
+  box-sizing: border-box;
+}
+
+.mp-lab-header {
+  max-width: 1120px;
+  margin: 0 auto 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mp-lab-title h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.mp-lab-title p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--mp-sub);
+}
+
+.mp-lab-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.mp-pill-btn {
+  border: 1px solid var(--mp-border);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--mp-text);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.14s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.mp-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.mp-pill-btn.active {
+  background: linear-gradient(135deg, #f5c451, #ffdf80);
+  color: #241905;
+  border-color: #ffe89e;
+  box-shadow: 0 4px 14px rgba(245, 196, 81, 0.35);
+}
+
+.mp-lab-stage {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 390px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .mp-lab-stage {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}
+
+/* Galaxy Mobile Viewport Frame (390 x 844) */
+.mp-phone {
+  width: 390px;
+  max-width: 100%;
+  height: 820px;
+  border-radius: 36px;
+  overflow: hidden;
+  position: relative;
+  background: var(--mp-abyss);
+  border: 3px solid rgba(255, 232, 158, 0.28);
+  box-shadow: 0 24px 64px rgba(4, 9, 22, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.mp-bg-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  z-index: 0;
+}
+
+.mp-bg-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.mp-bg-scrim.forest {
+  background: linear-gradient(180deg, rgba(16, 26, 48, 0.42) 0%, rgba(16, 26, 48, 0.18) 28%, rgba(16, 24, 44, 0.88) 58%, rgba(14, 21, 38, 0.98) 100%);
+}
+
+.mp-bg-scrim.vault {
+  background: linear-gradient(180deg, rgba(15, 20, 42, 0.56) 0%, rgba(18, 25, 50, 0.45) 38%, rgba(14, 20, 40, 0.94) 72%, rgba(12, 18, 36, 0.99) 100%);
+}
+
+.mp-screen-content {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 14px 86px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: none;
+}
+
+.mp-screen-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* Top HUD */
+.mp-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mp-profile-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 999px;
+  background: rgba(18, 28, 54, 0.78);
+  border: 1px solid rgba(255, 232, 158, 0.34);
+  backdrop-filter: blur(8px);
+}
+
+.mp-lv-badge {
+  background: linear-gradient(135deg, #f5c451, #e09f24);
+  color: #251703;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-profile-name {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.mp-hud-right {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.mp-vault-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(18, 28, 54, 0.82);
+  border: 1px solid rgba(255, 232, 158, 0.42);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--mp-gold-l);
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.25s cubic-bezier(0.22, 1.35, 0.36, 1), box-shadow 0.25s ease;
+}
+
+.mp-vault-pill.pulse {
+  transform: scale(1.14);
+  box-shadow: 0 0 22px rgba(255, 213, 107, 0.7);
+}
+
+.mp-vault-pill img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* Concept A Hero: Large Forest World + Explorer */
+.mp-hero-a {
+  position: relative;
+  min-height: 248px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 8px;
+}
+
+.mp-stage-tag {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  background: rgba(16, 26, 48, 0.72);
+  border: 1px solid rgba(168, 224, 195, 0.35);
+  color: #bdf7dc;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+}
+
+.mp-char-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.mp-char-shadow {
+  position: absolute;
+  bottom: 4px;
+  width: 112px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(8, 14, 28, 0.65) 0%, transparent 72%);
+}
+
+.mp-char-img {
+  position: relative;
+  z-index: 2;
+  height: 176px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(10, 16, 36, 0.45));
+  animation: mpFloat 3.4s ease-in-out infinite;
+}
+
+.mp-speech {
+  background: rgba(255, 252, 244, 0.94);
+  color: #1c243b;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(8, 14, 30, 0.28);
+  margin-bottom: 6px;
+}
+
+/* Concept B Hero: Gem Collection Showcase */
+.mp-hero-b {
+  background: var(--mp-panel);
+  border: 1px solid rgba(255, 213, 107, 0.35);
+  border-radius: 22px;
+  padding: 14px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 28px rgba(8, 14, 30, 0.42);
+}
+
+.mp-hero-b-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.mp-hero-b-top h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.mp-hero-b-top span {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--mp-gold-l);
+}
+
+/* Concept C Hero: Character + Gem Synergy Card (Recommended) */
+.mp-hero-c {
+  position: relative;
+  border-radius: 24px;
+  padding: 14px 14px 12px;
+  background: linear-gradient(155deg, rgba(28, 43, 78, 0.72), rgba(18, 28, 54, 0.88));
+  border: 1px solid rgba(255, 224, 138, 0.34);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 14px 30px rgba(6, 12, 28, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.mp-hero-c-row {
+  display: grid;
+  grid-template-columns: 118px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.mp-hero-c .mp-char-img {
+  height: 138px;
+}
+
+.mp-hero-c-info h2 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.mp-hero-c-sub {
+  font-size: 12px;
+  color: var(--mp-sub);
+  margin-bottom: 8px;
+}
+
+.mp-xp-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.mp-xp-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4ce0a8, #f5c451);
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mp-xp-meta {
+  margin-top: 5px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--mp-sub);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-next-gem-strip {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(14, 22, 44, 0.62);
+  border: 1px solid rgba(182, 131, 255, 0.34);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mp-next-gem-strip img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+/* Gem Grid / Slots */
+.mp-gem-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.mp-gem-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.mp-gem-slot {
+  position: relative;
+  border-radius: 16px;
+  padding: 8px 6px;
+  text-align: center;
+  border: 1px solid var(--mp-border);
+  background: rgba(20, 31, 58, 0.78);
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mp-gem-slot:hover {
+  transform: translateY(-2px);
+}
+
+.mp-gem-slot.selected {
+  border-color: #ffe89e;
+  box-shadow: 0 0 0 2px rgba(255, 213, 107, 0.32), 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.mp-gem-slot.locked img {
+  filter: brightness(0.18) saturate(0.2);
+  opacity: 0.55;
+}
+
+.mp-gem-slot img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 4px;
+}
+
+.mp-gem-strip .mp-gem-slot {
+  padding: 6px 2px;
+  border-radius: 12px;
+}
+
+.mp-gem-strip .mp-gem-slot img {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto;
+}
+
+.mp-gem-name {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--mp-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mp-rar-dot {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 999px;
+  margin-top: 3px;
+}
+
+/* Section Panel & Mission Cards */
+.mp-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.mp-section-head h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.mp-section-head span {
+  font-size: 12px;
+  color: var(--mp-gold-l);
+  font-weight: 700;
+}
+
+.mp-missions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mp-mission-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: var(--mp-card);
+  border: 1px solid var(--mp-border);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 16px rgba(8, 14, 30, 0.3);
+}
+
+.mp-mission-card.done {
+  opacity: 0.72;
+  background: rgba(24, 42, 58, 0.62);
+  border-color: rgba(76, 224, 168, 0.32);
+}
+
+.mp-mission-gem {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(14, 22, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mp-mission-gem img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.mp-mission-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mp-mission-meta {
+  font-size: 11px;
+  color: var(--mp-sub);
+  font-weight: 700;
+}
+
+.mp-mission-title {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mp-mission-reward {
+  font-size: 11px;
+  color: var(--mp-gold-l);
+  font-weight: 700;
+}
+
+.mp-action-btn {
+  min-height: 44px;
+  min-width: 78px;
+  border: none;
+  border-radius: 14px;
+  padding: 0 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  color: #261903;
+  background: linear-gradient(180deg, #ffe388 0%, #f5be42 100%);
+  box-shadow: 0 4px 0 #9f6a0b, 0 6px 14px rgba(0, 0, 0, 0.32);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.mp-action-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #9f6a0b;
+}
+
+.mp-action-btn:disabled {
+  background: rgba(76, 224, 168, 0.18);
+  color: #82f3c8;
+  box-shadow: none;
+  border: 1px solid rgba(76, 224, 168, 0.35);
+  cursor: default;
+}
+
+/* Bottom Nav */
+.mp-bottom-nav {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 6px;
+  border-radius: 22px;
+  background: rgba(16, 25, 48, 0.92);
+  border: 1px solid rgba(218, 232, 255, 0.2);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 24px rgba(4, 9, 22, 0.55);
+}
+
+.mp-nav-item {
+  border: none;
+  background: transparent;
+  color: var(--mp-muted);
+  border-radius: 16px;
+  padding: 8px 4px;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.mp-nav-item.active {
+  background: linear-gradient(135deg, rgba(245, 196, 81, 0.24), rgba(167, 139, 250, 0.24));
+  color: var(--mp-gold-l);
+}
+
+/* Gem Acquisition Overlay (STEP 6) */
+.mp-reveal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: radial-gradient(circle at 50% 42%, rgba(34, 48, 92, 0.95) 0%, rgba(11, 16, 32, 0.98) 72%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  text-align: center;
+  animation: mpFadeIn 0.26s ease-out;
+}
+
+.mp-reveal-stage {
+  position: relative;
+  width: 210px;
+  height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.mp-rays {
+  position: absolute;
+  inset: -24px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 226, 132, 0.22) 0deg 14deg, transparent 14deg 30deg);
+  mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 18%, transparent 70%);
+  -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 18%, transparent 70%);
+  animation: mpSpin 14s linear infinite;
+}
+
+.mp-aura {
+  position: absolute;
+  width: 158px;
+  height: 158px;
+  border-radius: 50%;
+  filter: blur(22px);
+  opacity: 0.72;
+  animation: mpPulseAura 2.4s ease-in-out infinite;
+}
+
+.mp-reveal-gem {
+  position: relative;
+  z-index: 3;
+  width: 156px;
+  height: 156px;
+  object-fit: contain;
+  animation: mpGemPop 0.56s cubic-bezier(0.22, 1.35, 0.36, 1) forwards;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.5));
+}
+
+.mp-reveal-gem.flying {
+  animation: mpFlyToVault 0.68s cubic-bezier(0.32, 0.02, 0.22, 1) forwards;
+}
+
+.mp-sparkle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  z-index: 4;
+  animation: mpSparkle 0.9s ease-out forwards;
+}
+
+.mp-reveal-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+}
+
+.mp-reveal-title {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 900;
+}
+
+.mp-reveal-desc {
+  margin: 8px 0 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mp-sub);
+  max-width: 280px;
+}
+
+/* Comparison / Inspector Panel on the Right */
+.mp-side-panel {
+  background: rgba(20, 31, 58, 0.8);
+  border: 1px solid var(--mp-border);
+  border-radius: 24px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mp-side-panel h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.mp-compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.mp-compare-table th,
+.mp-compare-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+}
+
+.mp-compare-table th {
+  color: var(--mp-gold-l);
+  font-weight: 800;
+}
+
+/* Reduced Motion & Low-Spec Mode */
+.mp-reduced .mp-char-img,
+.mp-reduced .mp-rays,
+.mp-reduced .mp-aura,
+.mp-reduced .mp-sparkle,
+.mp-reduced .mp-reveal-gem {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mp-char-img,
+  .mp-rays,
+  .mp-aura,
+  .mp-sparkle,
+  .mp-reveal-gem {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@keyframes mpFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes mpFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes mpSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes mpPulseAura {
+  0%, 100% { transform: scale(0.92); opacity: 0.62; }
+  50% { transform: scale(1.08); opacity: 0.88; }
+}
+
+@keyframes mpGemPop {
+  0% { transform: scale(0.18) rotate(-14deg); opacity: 0; }
+  65% { transform: scale(1.16) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes mpFlyToVault {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(115px, -310px) scale(0.18); opacity: 0.1; }
+}
+
+@keyframes mpSparkle {
+  0% { transform: translate(0, 0) scale(0); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(1.1); opacity: 0; }
+}
