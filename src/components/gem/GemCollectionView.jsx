@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { GEM_CATALOG } from "../../data/gemCatalog.js";
+import { GEM_BACKGROUNDS, GEM_CATALOG } from "../../data/gemCatalog.js";
 import { GEM_DESIGN_TOKENS } from "../../data/gemDesignTokens.js";
 import { getGemById } from "../../data/gemCollection.js";
 
@@ -37,7 +37,7 @@ export default function GemCollectionView({
 
   return (
     <section className={`mpg-vault-wrap ${reducedMotion ? "mpg-reduced" : ""}`} aria-label="보석 도감">
-      <div className="mpg-vault-bg" />
+      <div className="mpg-vault-bg" style={{ backgroundImage: `url(${GEM_BACKGROUNDS.vault})` }} />
       <div className="mpg-vault-scrim" />
 
       <div className="mpg-vault-inner">

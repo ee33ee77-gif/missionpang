@@ -3,7 +3,6 @@
 .mpg-forest-bg {
   position: absolute;
   inset: 0;
-  background-image: url("/assets/backgrounds/bg-gem-forest.webp");
   background-size: cover;
   background-position: center 22%;
   pointer-events: none;
@@ -193,7 +192,6 @@
 .mpg-vault-bg {
   position: absolute;
   inset: 0;
-  background-image: url("/assets/backgrounds/bg-gem-vault.webp");
   background-size: cover;
   background-position: center top;
   z-index: 0;

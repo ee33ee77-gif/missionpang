@@ -3452,7 +3452,7 @@ export default function App() {
               {/* 모험 기본 풍경 (2.5D 마법의 보석 숲) — 배경 꾸미기 미장착 시 기본 배경으로 */}
               {!cute&&!stageBgDeco&&(
                 <>
-                  <div className="mpg-forest-bg" />
+                  <div className="mpg-forest-bg" style={{backgroundImage:"url(./assets/backgrounds/bg-gem-forest.webp)"}} />
                   <div className="mpg-forest-scrim" />
                 </>
               )}
