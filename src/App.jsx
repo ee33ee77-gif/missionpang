@@ -17,6 +17,12 @@ import {
   getChildGemState,
   awardGemForQuest,
 } from "./data/gemCollection.js";
+import FamilyAccountModal from "./components/family/FamilyAccountModal.jsx";
+import {
+  subscribeAuth,
+  getUserFamilyProfile,
+  subscribeFamily,
+} from "./data/familyService.js";
 import {
   AVATAR_OWNED_KEY, AVATAR_EQUIPPED_KEY, CHAR_DISPLAY_MODE_KEY,
   CHAR_DISPLAY_GROWTH, CHAR_DISPLAY_AVATAR, DEFAULT_CHAR_DISPLAY_MODE,
@@ -320,6 +326,52 @@ export default function App() {
   const [pendingGemReveal,       setPendingGemReveal]       = useState(null);
   const [gemVaultPulse,          setGemVaultPulse]          = useState(false);
   const gemAwardLockRef = useRef(new Set());
+  // ── 로그인 & 가족 초대 (timebean-4de50 Firebase Auth + Firestore) ──
+  const [authUser,               setAuthUser]               = useState(null);
+  const [familyId,               setFamilyId]               = useState(null);
+  const [familyInfo,             setFamilyInfo]             = useState(null);
+  const [familyParents,          setFamilyParents]          = useState([]);
+  const [showFamilyModal,        setShowFamilyModal]        = useState(false);
+  const [urlInviteCode,          setUrlInviteCode]          = useState("");
+
+  useEffect(()=>{
+    if(typeof window==="undefined") return;
+    const inv=new URLSearchParams(window.location.search).get("invite");
+    if(inv && /^\d{6}$/.test(inv.trim())){
+      setUrlInviteCode(inv.trim());
+      setShowFamilyModal(true);
+    }
+  },[]);
+
+  useEffect(()=>{
+    return subscribeAuth(async (user)=>{
+      setAuthUser(user||null);
+      if(!user){
+        setFamilyId(null);
+        setFamilyInfo(null);
+        setFamilyParents([]);
+        return;
+      }
+      try{
+        const prof=await getUserFamilyProfile(user.uid);
+        setFamilyId(prof?.familyId||null);
+      }catch{
+        setFamilyId(null);
+      }
+    });
+  },[]);
+
+  useEffect(()=>{
+    if(!familyId){
+      setFamilyInfo(null);
+      setFamilyParents([]);
+      return;
+    }
+    return subscribeFamily(familyId,({family,parents})=>{
+      setFamilyInfo(family||null);
+      setFamilyParents(parents||[]);
+    });
+  },[familyId]);
   const [charCheer,              setCharCheer]              = useState(initUi.charCheer);
   const [treasureModal,          setTreasureModal]          = useState(initUi.treasureModal);
   const [openingTreasure,        setOpeningTreasure]        = useState(initUi.openingTreasure);
@@ -3315,6 +3367,10 @@ export default function App() {
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:7,alignItems:"stretch"}}>
               <div style={{display:"flex",gap:7,alignItems:"center",justifyContent:"flex-end"}}>
+                <button onClick={()=>setShowFamilyModal(true)} title={familyInfo?familyInfo.name:"로그인·가족 초대"}
+                  style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:`1.5px solid ${GP.gold||"#FFD166"}99`,background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.18)",borderRadius:14}),color:GP.chipText,padding:"9px 11px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 8px rgba(0,0,0,0.32)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
+                  {familyInfo?"🏡":"👨‍👩‍👧"}
+                </button>
                 <button onClick={()=>{ setAppMode("parent"); setTab("home"); }}
                   style={{...jellyChip({border:kidSkin==="cute"?`1.5px solid ${GP.chipBorder}`:`1.5px solid ${GP.gold||"#FFD166"}99`,background:kidSkin==="cute"?GP.chipBg:"rgba(255,255,255,0.18)",borderRadius:14}),flex:children.length>1?1:"none",color:GP.chipText,padding:"9px 13px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:kidSkin==="cute"?`0 3px 9px ${th.main}26`:"0 2px 8px rgba(0,0,0,0.32)",textShadow:kidSkin==="cute"?"none":"0 1px 2px rgba(0,0,0,0.4)"}}>
                   👩 엄마용
@@ -4656,6 +4712,31 @@ export default function App() {
         </div>
       )}
 
+      {/* ── 보석 획득 7단계 연출 모달 (아이 모드) ── */}
+      <GemAcquireModal
+        reveal={pendingGemReveal}
+        reducedMotion={gemReducedMotion}
+        xpLabel={TM.xp}
+        coinLabel={TM.coin}
+        onCollected={(rev)=>{
+          if(rev?.gem?.id) setSelectedGemVaultId(rev.gem.id);
+          setPendingGemReveal(null);
+          setGemVaultPulse(true);
+          window.setTimeout(()=>setGemVaultPulse(false),560);
+        }}
+      />
+
+      {/* ── 로그인 & 가족 초대 모달 (아이 모드) ── */}
+      <FamilyAccountModal
+        open={showFamilyModal}
+        onClose={()=>setShowFamilyModal(false)}
+        authUser={authUser}
+        family={familyInfo}
+        parents={familyParents}
+        initialInviteCode={urlInviteCode}
+        onFamilyChanged={(fid)=>setFamilyId(fid)}
+      />
+
       </div>
     );
   }
@@ -4939,10 +5020,16 @@ export default function App() {
             <p style={{fontSize:11,color:mixBlack(th.main,0.45),margin:0,letterSpacing:2.5,fontWeight:800,opacity:0.9}}>ACADEMY PLANNER</p>
             <h1 style={{fontSize:23,fontWeight:900,margin:"4px 0 0",color:mixBlack(th.main,0.45)}}>🎒 엄마 관리</h1>
           </div>
-          <button onClick={exitParentMode}
-            style={{border:"none",background:"#fff",color:mixBlack(th.main,0.35),borderRadius:14,padding:"9px 14px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`}}>
-            🎒 아이용
-          </button>
+          <div style={{display:"flex",gap:7,alignItems:"center"}}>
+            <button onClick={()=>setShowFamilyModal(true)}
+              style={{border:"none",background:"rgba(255,255,255,0.88)",color:mixBlack(th.main,0.35),borderRadius:14,padding:"9px 12px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`}}>
+              {familyInfo?`🏡 ${familyInfo.name}`:"👨‍👩‍👧 로그인·가족"}
+            </button>
+            <button onClick={exitParentMode}
+              style={{border:"none",background:"#fff",color:mixBlack(th.main,0.35),borderRadius:14,padding:"9px 14px",fontSize:13,fontWeight:900,cursor:"pointer",whiteSpace:"nowrap",boxShadow:`0 6px 16px ${th.main}22`}}>
+              🎒 아이용
+            </button>
+          </div>
         </div>
       </div>
 
@@ -7614,6 +7701,17 @@ export default function App() {
           setGemVaultPulse(true);
           window.setTimeout(()=>setGemVaultPulse(false),560);
         }}
+      />
+
+      {/* ── 로그인 & 가족 초대 모달 (부모 모드) ── */}
+      <FamilyAccountModal
+        open={showFamilyModal}
+        onClose={()=>setShowFamilyModal(false)}
+        authUser={authUser}
+        family={familyInfo}
+        parents={familyParents}
+        initialInviteCode={urlInviteCode}
+        onFamilyChanged={(fid)=>setFamilyId(fid)}
       />
     </div>
   );
