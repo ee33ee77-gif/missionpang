@@ -7,12 +7,12 @@ import { initializeFirestore } from "firebase/firestore";
 const env = import.meta.env || {};
 
 const firebaseConfig = {
-  apiKey: env.VITE_FIREBASE_API_KEY || "",
+  apiKey: env.VITE_FIREBASE_API_KEY || "AIzaSyArOBkscLILvwAiQ3QlBSt1aUFW8zgTfg0",
   authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || "timebean-4de50.firebaseapp.com",
   projectId: env.VITE_FIREBASE_PROJECT_ID || "timebean-4de50",
   storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || "timebean-4de50.firebasestorage.app",
-  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: env.VITE_FIREBASE_APP_ID || "",
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1012941948842",
+  appId: env.VITE_FIREBASE_APP_ID || "1:1012941948842:web:5380627f433f6d8f728dd3",
 };
 
 export const firebaseConfigured = Boolean(
